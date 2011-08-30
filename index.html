@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+           
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+
+<html>
+  <head>
+    <title>Presentation</title>
+
+    <meta charset='utf-8'>
+    <script
+      src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+  </head>
+  
+  <style>
+    /* Your individual styles here, or just use inline styles if that’s
+       what you want. */
+    
+    
+  </style>
+
+  <body style='display: none'>
+
+    <section class='slides layout-regular template-default'>
+      
+      <!-- Your slides (<article>s) go here. Delete or comment out the
+           slides below. -->
+      
+      <article>
+        <h1>Javascript Bookmarklet</h1>
+        <p>
+          Peter Wong
+          <br>
+          Aug 30, 2011
+        </p>
+      </article>
+        
+      <article>
+        <h3>Things included...</h3>
+        <ul>
+          <li>Bookmarklet Nature</li>
+          <li>Implementation</li>
+          <li>Difficulties</li>
+        </ul>
+      </article>
+      
+      <article>
+        <h2>Bookmarklet Nature</h2>
+        <p>
+          <img class='centered' style='margin-top: 160px' src='img/img1.png'>
+        </p>
+        <div class='source'>
+          Source: Peter Wong
+        </div>
+      </article>
+      
+      <article>
+        <h3>Bookmarklet Nature <small>- in short</small></h3>
+        <q>a link (<code>&lt;a&gt;</code> tag) having javascript in its href attribute</q>
+      </article>
+      
+      <article>
+        <h3>Bookmarklet Nature <small>- examples</small></h3>
+        <pre>
+&lt;a href="javascript: alert('halo'); return false;"&gt;Bookmarklet&lt;/a&gt;
+        </pre>
+        <pre>
+&lt;a href="javascript: (function() {
+  window.open('http://example.com')
+})(); return false;"&gt;Bookmarklet&lt;/a&gt;
+        </pre>
+        <pre>
+&lt;a href="javascript:
+  document.write('clean the page XD');
+  return false"&gt;Bookmarklet&lt;/a&gt;
+        </pre>
+      </article>
+      
+      <article>
+        <h2>Implementation</h2>
+      </article>
+      
+      <article>
+        <h3>Implementation <small>- how to</small></h3>
+        
+        <ol>
+          <li>
+            &lt;a&gt; tag
+            <div class="small">
+              <pre><strong>&lt;a&gt;I am Bookmarklet&lt;/a&gt;</strong></pre>
+            </div>
+          </li>
+          <li>
+            href attribute
+            <div class="small">
+              <pre>&lt;a <strong>href='javascript:void(0)'</strong>&gt;I am Bookmarklet&lt;/a&gt;</pre>
+            </div>
+          </li>
+          <li>
+            your javascript
+            <div class="small">
+              <pre>&lt;a href='javascript:<strong>alert('halo')</strong>; void(0)'&gt;I am Bookmarklet&lt;/a&gt;</pre>
+            </div>
+          </li>
+        </ol>
+      </article>
+      
+      <article>
+        <h3>Implementation <small>- hey..isn't it too simple..?</small></h3>
+        <div class="build">
+          <p>Sometimes (most likely actually) our code to be executed would be a few hundreds lines. Isn't the previous example too simple?</p>
+          <p>......</p>
+          <p>Remember, you could execute any valid JS code! <small>(XSS..? behave yourself :))</small></p>
+          <p>
+            So, your code write code to include any other javascript / css files!<br>
+            See how now ~&gt;
+          </p>
+        </div>
+      </article>
+      
+      <article>
+        <h3>Implementation <small>- XSS? Oops..not</small></h3>
+        <pre>
+&lt;a href="javascript: (function() {
+  var script = document.createElement('script');
+  script.src='<strong>http://example.com/javascript.js</strong>';
+  document.body.appendChild(script);
+})(); return false"&gt;Bookmarklet&lt;/a&gt;
+        </pre>
+        <pre>
+// http://example.com/javascript.js
+// one suggestion template:
+if(window.my_library_defined === undefined) {
+  // your code goes here...
+  
+  window.my_library_defined = true;
+}
+// (so a user pressed multiple times won't redefine your code!)
+        </pre>
+      </article>
+      
+      <article>
+        <h2>Difficulties</h2>
+      </article>
+      
+      <article>
+        <h3>Difficulties <small>- elements' style</small></h3>
+        
+        <div class="build">
+          <div>
+            <p>If you are planning to create some elements on the page...</p>
+            <ul>
+              <li>Some sites reset the elements' default styles</li>
+              <li>
+                Some sites have their own styesheets...<br />
+                <small>even worst having defined <code>!important</code> in css</small>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Workaround</h4>
+            <ul>
+              <li>.my_thing_container { /* reset style here! */ }</li>
+              <li>Write explicitly all styles for your every elements</li>
+              <li>... any other suggestion..? Please tell me...</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      
+      <article>
+        <h3>Difficulties <small>- importing more scripts / css...</small></h3>
+        <div class="build">
+          <p>So you have imported your first script by creating a script tag in the bookmarklet's href, remember?</p>
+          <p>You may want to import more javascript / css files by using the same technique inside your script</p>
+          <p>But remember, they are loaded <strong>asynchronously</strong>!</p>
+          
+          <div>
+            <h4>Workaround</h4>
+            <ul>
+              <li>Check if the scripts are loaded by using <code>window.setInterval</code> / <code>window.setTimeout</code></li>
+              <li>Write a function call from the loaded scripts to the mother script for acknowledgement.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      
+      <article>
+        <h3>
+          Thank you!
+        </h3>
+        
+        <h4>More references</h4>
+        <ul>
+          <li>
+            <a href="https://www.squarefree.com/bookmarklets/browsers.html">Browser support for bookmarklets</a>
+          </li>
+          <li>
+            <a href="https://gist.github.com/967832">xss-bookmarklet.js</a>
+          </li>
+        </ul>
+      </article>
+
+    </section>
+
+  </body>
+</html>
